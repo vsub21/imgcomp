@@ -1,9 +1,10 @@
 from . import nn
 
 import torch
-# import tensorflow as tf
-# from tensorflow.contrib.framework.python.ops import add_arg_scope
 import numpy as np
+
+# import tensorflow as tf
+# from tensorflow.contrib.framework.python.ops import add_arg_scope # don't think i need this here for models.arg_scope, only in tf.contrib.framework.python.ops.arg_scope
 
 from collections import namedtuple
 import math
@@ -35,6 +36,9 @@ def right_shift(image):
     all_image_except_last_column = image[:, :, :-1, :]
     zero_column = np.zeros_like(image[:, :, :1, :])
     return np.concatenate([zero_column, all_image_except_last_column], axis=2)
+
+################################################################## wip ###################################################################
+
 
 # used in down_shifted_conv2d, line 1 
 #
