@@ -1,5 +1,8 @@
-from . import fast_nn
-from . import nn
+# from . import fast_nn
+# from . import nn
+
+import nn
+import fast_nn
 
 import tensorflow as tf
 import numpy as np
@@ -12,7 +15,7 @@ from model_utils import arg_scope
 
 UPDATE_V_STACK = 'update_v_stack'
 
-# tf.cond pytorch equivalent?? ---- https://discuss.pytorch.org/t/how-to-use-condition-flow/644
+# tf.cond pytorch equivalent?? ---- 
 
 # def undo_zeroth_row_bias_when_downshifting(row_output, row):
 #     '''The down_shifted_conv2d adds a bias to the row of all zeros. This removes that bias.'''
