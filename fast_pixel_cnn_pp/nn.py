@@ -18,8 +18,7 @@ def int_shape(x):
 # COMPLETED
 def concat_elu(x):
     """ like concatenated ReLU (http://arxiv.org/abs/1603.05201), but then with ELU """
-    x_shape = int_shape(x)
-    axis = len(x_shape) - 1
+    axis = len(int_shape(x)) - 1
     out = torch.nn.ELU(torch.cat([x, -x], dim=axis))
     out = torch.view(x_shape[:-1] + [x_shape[-1] * 2])
     return out
@@ -31,20 +30,31 @@ def concat_elu(x):
     # out.set_shape(x_shape[:-1] + [x_shape[-1] * 2])
     # return out
 
-# TODO:
+# COMPLETED
 def log_sum_exp(x):
     """ numerically stable log_sum_exp implementation that prevents overflow """
-    axis = len(x.get_shape())-1
-    m = tf.reduce_max(x, axis)
-    m2 = tf.reduce_max(x, axis, keep_dims=True)
-    return m + tf.log(tf.reduce_sum(tf.exp(x-m2), axis))
+    axis = len(int_shape(x)) - 1
+    m = torch.max(x, axis)[0] # without [0] is tuple of (max, max_indices)
+    m2 = torch.max(x, axis, keepdim=True)[0]
+    return m + torch.log(torch.sum(torch.exp(x-m2), axis))
 
-# TODO:
+    # # tf:
+    # axis = len(x.get_shape())-1
+    # m = tf.reduce_max(x, axis)
+    # m2 = tf.reduce_max(x, axis, keep_dims=True)
+    # return m + tf.log(tf.reduce_sum(tf.exp(x-m2), axis))
+
+# COMPLETED
 def log_prob_from_logits(x):
     """ numerically stable log_softmax implementation that prevents overflow """
-    axis = len(x.get_shape())-1
-    m = tf.reduce_max(x, axis, keep_dims=True)
-    return x - m - tf.log(tf.reduce_sum(tf.exp(x-m), axis, keep_dims=True))
+    axis = len(int_shape(x)) - 1
+    m = torch.max(x, axis, keepdim=True)[0]
+    return x - m - torch.log(torch.sum(torch.exp(x-m), axis, keepdim=True))
+
+    # # tf:
+    # axis = len(x.get_shape())-1
+    # m = tf.reduce_max(x, axis, keep_dims=True)
+    # return x - m - tf.log(tf.reduce_sum(tf.exp(x-m), axis, keep_dims=True))
 
 # TODO:
 def discretized_mix_logistic_loss(x,l,sum_all=True):
