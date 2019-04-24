@@ -1,7 +1,7 @@
 '''
-Copied from Caffe2 ()
+Copied from Caffe2 (https://github.com/pytorch/pytorch/blob/cca247635c6edb323176eeac7a18d3e9ab71c558/caffe2/python/helpers/arg_scope.py)
 '''
-
+############################################### pytorch/caffe2/python/helpers/arg_scope.py ###############################################
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -37,3 +37,8 @@ def get_current_scope():
     if not hasattr(_threadlocal_scope, "current_scope"):
         _threadlocal_scope.current_scope = {}
     return _threadlocal_scope.current_scope
+
+################################################################## end ##################################################################
+
+# def get_shape(t):
+#     return tuple(t.size())
