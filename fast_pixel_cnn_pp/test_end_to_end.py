@@ -1,5 +1,8 @@
-# from . import model
-# from . import fast_nn
+# # from . import model
+# # from . import fast_nn
+
+# import model
+# import fast_nn
 
 # import tensorflow as tf
 # import numpy as np
