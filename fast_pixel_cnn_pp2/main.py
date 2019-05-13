@@ -45,6 +45,35 @@ parser.add_argument('-s', '--seed', type=int, default=1,
                     help='Random seed to use')
 args = parser.parse_args()
 
+###############################################################################################
+
+# GPU
+ngpu=1
+device = torch.device("cuda:1" if (torch.cuda.is_available() and ngpu > 0) else "cpu")
+
+# Data location
+train_path='/dvmm-filer2/datasets/ImageNet/train'
+val_path='/dvmm-filer2/datasets/ImageNet/val'
+# test_path='/home/vivek/imgcomp/fast_pixel_cnn_pp_new/data/'
+
+
+transform = transforms.Compose([
+			transforms.RandomResizedCrop(160),
+			transforms.RandomHorizontalFlip(),
+			transforms.ToTensor(),
+			])
+
+imagenet_data = torchvision.datasets.ImageFolder(train_path, transform=transform)
+data_loader = torch.utils.data.DataLoader(
+	imagenet_data,
+	batch_size=30,
+	shuffle=True,
+	num_workers=0
+)
+
+###############################################################################################
+
+
 # reproducibility
 torch.manual_seed(args.seed)
 np.random.seed(args.seed)
@@ -109,7 +138,7 @@ scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=args.lr_decay)
 
 def sample(model):
     model.train(False)
-    data = torch.zeros(sample_batch_size, obs[0], obs[1], obs[2])
+    data = torch.zeros(sample_batch_size, obs[0], obs[1], obs[2], device=device)
     data = data.cuda()
     for i in range(obs[1]):
         for j in range(obs[2]):

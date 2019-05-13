@@ -7,6 +7,8 @@ from layers import *
 from utils import * 
 import numpy as np
 
+device = torch.device("cuda:0" if (torch.cuda.is_available() and ngpu > 0) else "cpu")
+
 class PixelCNNLayer_up(nn.Module):
     def __init__(self, nr_resnet, nr_filters, resnet_nonlinearity):
         super(PixelCNNLayer_up, self).__init__()
@@ -106,12 +108,12 @@ class PixelCNN(nn.Module):
         # similar as done in the tf repo :  
         if self.init_padding is None and not sample: 
             xs = [int(y) for y in x.size()]
-            padding = Variable(torch.ones(xs[0], 1, xs[2], xs[3]), requires_grad=False)
+            padding = Variable(torch.ones(xs[0], 1, xs[2], xs[3], device=device), requires_grad=False)
             self.init_padding = padding.cuda() if x.is_cuda else padding
         
         if sample : 
             xs = [int(y) for y in x.size()]
-            padding = Variable(torch.ones(xs[0], 1, xs[2], xs[3]), requires_grad=False)
+            padding = Variable(torch.ones(xs[0], 1, xs[2], xs[3], device=device), requires_grad=False)
             padding = padding.cuda() if x.is_cuda else padding
             x = torch.cat((x, padding), 1)
 
