@@ -52,6 +52,7 @@ print('got here before imagenet handling')
 # GPU
 ngpu=1
 device = torch.device("cuda:1" if (torch.cuda.is_available() and ngpu > 0) else "cpu")
+print('device')
 
 # Data location
 train_path='/dvmm-filer2/datasets/ImageNet/train'
@@ -127,6 +128,7 @@ elif 'imagenet' in args.dataset :
 else :
     raise Exception('{} dataset not in {mnist, cifar10, imagenet}'.format(args.dataset))
 
+print('got here before pixelcnn instantation')
 model = PixelCNN(nr_resnet=args.nr_resnet, nr_filters=args.nr_filters, 
             input_channels=input_channels, nr_logistic_mix=args.nr_logistic_mix)
 model = model.cuda()
