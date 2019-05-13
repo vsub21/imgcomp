@@ -51,7 +51,7 @@ np.random.seed(args.seed)
 
 model_name = 'pcnn_lr:{:.5f}_nr-resnet{}_nr-filters{}'.format(args.lr, args.nr_resnet, args.nr_filters)
 assert not os.path.exists(os.path.join('runs', model_name)), '{} already exists!'.format(model_name)
-writer = SummaryWriter(log_dir=os.path.join('runs', model_name))
+# writer = SummaryWriter(log_dir=os.path.join('runs', model_name))
 
 sample_batch_size = 25
 obs = (1, 28, 28) if 'mnist' in args.dataset else (3, 32, 32)
@@ -138,7 +138,7 @@ for epoch in range(args.max_epochs):
         train_loss += loss.data[0]
         if (batch_idx +1) % args.print_every == 0 : 
             deno = args.print_every * args.batch_size * np.prod(obs) * np.log(2.)
-            writer.add_scalar('train/bpd', (train_loss / deno), writes)
+            # writer.add_scalar('train/bpd', (train_loss / deno), writes)
             print('loss : {:.4f}, time : {:.4f}'.format(
                 (train_loss / deno), 
                 (time.time() - time_)))
@@ -162,7 +162,7 @@ for epoch in range(args.max_epochs):
         del loss, output
 
     deno = batch_idx * args.batch_size * np.prod(obs) * np.log(2.)
-    writer.add_scalar('test/bpd', (test_loss / deno), writes)
+    # writer.add_scalar('test/bpd', (test_loss / deno), writes)
     print('test loss : %s' % (test_loss / deno))
     
     if (epoch + 1) % args.save_interval == 0: 
