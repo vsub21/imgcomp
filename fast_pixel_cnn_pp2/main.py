@@ -47,6 +47,8 @@ args = parser.parse_args()
 
 ###############################################################################################
 
+print('got here before imagenet handling')
+
 # GPU
 ngpu=1
 device = torch.device("cuda:1" if (torch.cuda.is_available() and ngpu > 0) else "cpu")
@@ -57,23 +59,23 @@ val_path='/dvmm-filer2/datasets/ImageNet/val'
 # test_path='/home/vivek/imgcomp/fast_pixel_cnn_pp_new/data/'
 
 
-transform = transforms.Compose([
-			transforms.RandomResizedCrop(160),
-			transforms.RandomHorizontalFlip(),
-			transforms.ToTensor(),
-			])
+# transform = transforms.Compose([
+# 			transforms.RandomResizedCrop(160),
+# 			transforms.RandomHorizontalFlip(),
+# 			transforms.ToTensor(),
+# 			])
 
 # imagenet_data = torchvision.datasets.ImageFolder(train_path, transform=transform)
-imagenet_data = torchvision.datasets.ImageFolder(train_path)
-data_loader = torch.utils.data.DataLoader(
-	imagenet_data,
-	batch_size=30,
-	shuffle=True,
-	num_workers=0
-)
+# data_loader = torch.utils.data.DataLoader(
+# 	imagenet_data,
+# 	batch_size=30,
+# 	shuffle=True,
+# 	num_workers=0
+# )
 
 ###############################################################################################
 
+print('got here before seed')
 
 # reproducibility
 torch.manual_seed(args.seed)
