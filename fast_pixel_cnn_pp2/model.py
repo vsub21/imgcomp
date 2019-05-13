@@ -1,11 +1,14 @@
 import pdb
+
+from layers import * 
+from nn_local import * 
+
 import torch
 import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
-from layers import * 
-from utils import * 
+
 import numpy as np
 
 device = torch.device("cuda:0" if (torch.cuda.is_available() and ngpu > 0) else "cpu")

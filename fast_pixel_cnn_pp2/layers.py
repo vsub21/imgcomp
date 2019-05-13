@@ -1,4 +1,4 @@
-from utils import * 
+from nn_local import * 
 import pdb
 import torch 
 import torch.nn as nn

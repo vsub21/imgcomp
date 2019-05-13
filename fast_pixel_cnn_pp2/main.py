@@ -63,7 +63,8 @@ transform = transforms.Compose([
 			transforms.ToTensor(),
 			])
 
-imagenet_data = torchvision.datasets.ImageFolder(train_path, transform=transform)
+# imagenet_data = torchvision.datasets.ImageFolder(train_path, transform=transform)
+imagenet_data = torchvision.datasets.ImageFolder(train_path)
 data_loader = torch.utils.data.DataLoader(
 	imagenet_data,
 	batch_size=30,
@@ -90,6 +91,7 @@ rescaling_inv = lambda x : .5 * x  + .5
 kwargs = {'num_workers':1, 'pin_memory':True, 'drop_last':True}
 ds_transforms = transforms.Compose([transforms.ToTensor(), rescaling])
 
+print('got here 1')
 if 'mnist' in args.dataset : 
     train_loader = torch.utils.data.DataLoader(datasets.MNIST(args.data_dir, download=True, 
                         train=True, transform=ds_transforms), batch_size=args.batch_size, 
@@ -120,7 +122,6 @@ elif 'imagenet' in args.dataset :
     
     loss_op   = lambda real, fake : discretized_mix_logistic_loss(real, fake)
     sample_op = lambda x : sample_from_discretized_mix_logistic(x, args.nr_logistic_mix)
-
 else :
     raise Exception('{} dataset not in {mnist, cifar10, imagenet}'.format(args.dataset))
 
@@ -128,6 +129,7 @@ model = PixelCNN(nr_resnet=args.nr_resnet, nr_filters=args.nr_filters,
             input_channels=input_channels, nr_logistic_mix=args.nr_logistic_mix)
 model = model.cuda()
 
+print('got here 2')
 if args.load_params:
     load_part_of_model(model, args.load_params)
     # model.load_state_dict(torch.load(args.load_params))
@@ -136,6 +138,7 @@ if args.load_params:
 optimizer = optim.Adam(model.parameters(), lr=args.lr)
 scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=args.lr_decay)
 
+print('got here 3')
 def sample(model):
     model.train(False)
     data = torch.zeros(sample_batch_size, obs[0], obs[1], obs[2], device=device)
