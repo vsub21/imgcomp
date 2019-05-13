@@ -17,35 +17,35 @@ UPDATE_V_STACK = 'update_v_stack'
 
 # tf.cond pytorch equivalent?? ---- 
 
-# def undo_zeroth_row_bias_when_downshifting(row_output, row):
-#     '''The down_shifted_conv2d adds a bias to the row of all zeros. This removes that bias.'''
-#     return tf.cond(
-#         tf.equal(row, 0), lambda: tf.zeros_like(row_output),
-#         lambda: row_output)
+# TODO:
+def undo_zeroth_row_bias_when_downshifting(row_output, row):
+    '''The down_shifted_conv2d adds a bias to the row of all zeros. This removes that bias.'''
+    return tf.cond(
+        tf.equal(row, 0), lambda: tf.zeros_like(row_output),
+        lambda: row_output)
 
+# TODO:
+def undo_zeroth_column_bias_when_rightshifting(pixel_output, col):
+    '''The down_shifted_conv2d adds a bias to the column of all zeros. This removes that bias.'''
+    return tf.cond(
+        tf.equal(col, 0), lambda: tf.zeros_like(pixel_output),
+        lambda: pixel_output)
 
-# def undo_zeroth_column_bias_when_rightshifting(pixel_output, col):
-#     '''The down_shifted_conv2d adds a bias to the column of all zeros. This removes that bias.'''
-#     return tf.cond(
-#         tf.equal(col, 0), lambda: tf.zeros_like(pixel_output),
-#         lambda: pixel_output)
-
-
-# def cache_v_stack_variable(v_stack_variable):
-#     '''Caches vertical stack hidden states. This avoids the need to pass the computed
-#         vertical stack in the feed_dict, which would involve CPU to GPU transfers.'''
-#     cache = tf.Variable(
-#         initial_value=np.zeros(v_stack_variable.get_shape().as_list()),
-#         name='v_stack_cache',
-#         dtype=tf.float32)
-#     update_v_stack_cache = cache.assign(v_stack_variable)
-#     tf.add_to_collection(UPDATE_V_STACK, update_v_stack_cache)
-#     reset_cache = cache.assign(tf.zeros_like(cache))
-#     tf.add_to_collection(fast_nn.RESET_CACHE_COLLECTION, reset_cache)
-#     return cache
+# TODO:
+def cache_v_stack_variable(v_stack_variable):
+    '''Caches vertical stack hidden states. This avoids the need to pass the computed
+        vertical stack in the feed_dict, which would involve CPU to GPU transfers.'''
+    cache = tf.Variable(
+        initial_value=np.zeros(v_stack_variable.get_shape().as_list()),
+        name='v_stack_cache',
+        dtype=tf.float32)
+    update_v_stack_cache = cache.assign(v_stack_variable)
+    tf.add_to_collection(UPDATE_V_STACK, update_v_stack_cache)
+    reset_cache = cache.assign(tf.zeros_like(cache))
+    tf.add_to_collection(fast_nn.RESET_CACHE_COLLECTION, reset_cache)
+    return cache
 
 # TODO: grind through this
-
 def model_spec(row_input,
                pixel_input,
                row,
@@ -348,4 +348,4 @@ def model_spec(row_input,
                 x_out, nr_logistic_mix, seed=seed)
             cache_v_stack = tf.group(*tf.get_collection(UPDATE_V_STACK))
 
-return sample, x_out, cache_v_stack
+    return sample, x_out, cache_v_stack
