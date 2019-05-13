@@ -81,8 +81,19 @@ elif 'cifar' in args.dataset :
     
     loss_op   = lambda real, fake : discretized_mix_logistic_loss(real, fake)
     sample_op = lambda x : sample_from_discretized_mix_logistic(x, args.nr_logistic_mix)
+
+elif 'imagenet' in args.dataset : 
+    train_loader = torch.utils.data.DataLoader(datasets.ImageNet(args.data_dir, train=True, 
+        download=True, transform=ds_transforms), batch_size=args.batch_size, shuffle=True, **kwargs)
+    
+    test_loader  = torch.utils.data.DataLoader(datasets.ImageNet(args.data_dir, train=False, 
+                    transform=ds_transforms), batch_size=args.batch_size, shuffle=True, **kwargs)
+    
+    loss_op   = lambda real, fake : discretized_mix_logistic_loss(real, fake)
+    sample_op = lambda x : sample_from_discretized_mix_logistic(x, args.nr_logistic_mix)
+
 else :
-    raise Exception('{} dataset not in {mnist, cifar10}'.format(args.dataset))
+    raise Exception('{} dataset not in {mnist, cifar10, imagenet}'.format(args.dataset))
 
 model = PixelCNN(nr_resnet=args.nr_resnet, nr_filters=args.nr_filters, 
             input_channels=input_channels, nr_logistic_mix=args.nr_logistic_mix)
