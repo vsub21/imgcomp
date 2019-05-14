@@ -19,7 +19,7 @@ parser.add_argument('-i', '--data_dir', type=str,
 parser.add_argument('-o', '--save_dir', type=str, default='models',
                     help='Location for parameter checkpoints and samples')
 parser.add_argument('-d', '--dataset', type=str,
-                    default='cifar', help='Can be either cifar|mnist')
+                    default='mnist', help='Can be either cifar|mnist|imagenet')
 parser.add_argument('-p', '--print_every', type=int, default=50,
                     help='how many iterations between print statements')
 parser.add_argument('-t', '--save_interval', type=int, default=10,
@@ -40,7 +40,7 @@ parser.add_argument('-e', '--lr_decay', type=float, default=0.999995,
 parser.add_argument('-b', '--batch_size', type=int, default=16,
                     help='Batch size during training per GPU')
 parser.add_argument('-x', '--max_epochs', type=int,
-                    default=5000, help='How many epochs to run in total?')
+                    default=10, help='How many epochs to run in total?')
 parser.add_argument('-s', '--seed', type=int, default=1,
                     help='Random seed to use')
 args = parser.parse_args()
@@ -209,8 +209,9 @@ for epoch in range(args.max_epochs):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        train_loss += loss.data[0]
-        if (batch_idx +1) % args.print_every == 0 : 
+        train_loss += loss.item() # 0-dim tensor, get value
+        if (batch_idx + 1) % args.print_every == 0 : 
+            print('iteration: {}'.format(batch_idx + 1))
             deno = args.print_every * args.batch_size * np.prod(obs) * np.log(2.)
             # writer.add_scalar('train/bpd', (train_loss / deno), writes)
             print('loss : {:.4f}, time : {:.4f}'.format(
