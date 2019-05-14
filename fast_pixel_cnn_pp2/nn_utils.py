@@ -6,6 +6,8 @@ from torch.autograd import Variable
 from torch.nn.utils import weight_norm as wn
 import numpy as np
 
+
+
 ngpu=1
 device = torch.device("cuda:1" if (torch.cuda.is_available() and ngpu > 0) else "cpu")
 

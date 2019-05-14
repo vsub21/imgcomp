@@ -8,7 +8,7 @@ import torch.optim as optim
 from torch.optim import lr_scheduler
 from torchvision import datasets, transforms, utils
 from tensorboardX import SummaryWriter
-from utils import * 
+from nn_utils import * 
 from model import * 
 from PIL import Image
 
@@ -44,6 +44,26 @@ parser.add_argument('-x', '--max_epochs', type=int,
 parser.add_argument('-s', '--seed', type=int, default=1,
                     help='Random seed to use')
 args = parser.parse_args()
+
+###############################################################################################
+
+# GPU Information:
+
+import torch
+import sys
+import os
+print('__Python VERSION:', sys.version)
+print('__pyTorch VERSION:', torch.__version__)
+print('__CUDA VERSION')
+from subprocess import call
+# call(["nvcc", "--version"]) does not work
+# os.run('nvcc --version')
+print('__CUDNN VERSION:', torch.backends.cudnn.version())
+print('__Number CUDA Devices:', torch.cuda.device_count())
+print('__Devices')
+# call(["nvidia-smi", "--format=csv", "--query-gpu=index,name,driver_version,memory.total,memory.used,memory.free"])
+print('Active CUDA Device: GPU', torch.cuda.current_device())
+
 
 ###############################################################################################
 
@@ -125,6 +145,13 @@ elif 'imagenet' in args.dataset :
     #     batch_size=args.batch_size, 
     #     shuffle=True, 
     #     **kwargs)
+
+    test_loader = torch.utils.data.DataLoader(
+        imagenet_test_data,
+        batch_size=30,
+        shuffle=True,
+        num_workers=0
+    )
     
     test_loader  = torch.utils.data.DataLoader(datasets.ImageNet(args.data_dir, train=False, 
                     transform=ds_transforms), batch_size=args.batch_size, shuffle=True, **kwargs)
