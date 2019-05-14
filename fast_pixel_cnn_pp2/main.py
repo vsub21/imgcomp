@@ -54,26 +54,6 @@ ngpu=1
 device = torch.device("cuda:1" if (torch.cuda.is_available() and ngpu > 0) else "cpu")
 print('device: ', device)
 
-# Data location
-train_path='/dvmm-filer2/datasets/ImageNet/train'
-val_path='/dvmm-filer2/datasets/ImageNet/val'
-# test_path='/home/vivek/imgcomp/fast_pixel_cnn_pp_new/data/'
-
-
-# transform = transforms.Compose([
-# 			transforms.RandomResizedCrop(160),
-# 			transforms.RandomHorizontalFlip(),
-# 			transforms.ToTensor(),
-# 			])
-
-# imagenet_data = torchvision.datasets.ImageFolder(train_path, transform=transform)
-# data_loader = torch.utils.data.DataLoader(
-# 	imagenet_data,
-# 	batch_size=30,
-# 	shuffle=True,
-# 	num_workers=0
-# )
-
 ###############################################################################################
 
 print('got here before seed')
@@ -117,8 +97,34 @@ elif 'cifar' in args.dataset :
     sample_op = lambda x : sample_from_discretized_mix_logistic(x, args.nr_logistic_mix)
 
 elif 'imagenet' in args.dataset : 
-    train_loader = torch.utils.data.DataLoader(datasets.ImageNet(args.data_dir, train=True, 
-        download=True, transform=ds_transforms), batch_size=args.batch_size, shuffle=True, **kwargs)
+
+    # Data location
+    train_path='/dvmm-filer2/datasets/ImageNet/train'
+    val_path='/dvmm-filer2/datasets/ImageNet/val'
+    test_path='/home/vivek/imgcomp/fast_pixel_cnn_pp_new/data/'
+
+
+    transform = transforms.Compose([
+                transforms.RandomResizedCrop(160),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                ])
+
+    imagenet_train_data = datasets.ImageFolder(train_path, train=True, download=False, transform=ds_transforms)
+    imagenet_test_data = datasets.ImageFolder(test_path, train=False, download=False, transform=ds_transforms)
+
+    train_loader = torch.utils.data.DataLoader(
+        imagenet_train_data,
+        batch_size=30,
+        shuffle=True,
+        num_workers=0
+    )
+    # # old
+    # train_loader = torch.utils.data.DataLoader(
+    #     datasets.ImageNet(args.data_dir, train=True, download=True, transform=ds_transforms), 
+    #     batch_size=args.batch_size, 
+    #     shuffle=True, 
+    #     **kwargs)
     
     test_loader  = torch.utils.data.DataLoader(datasets.ImageNet(args.data_dir, train=False, 
                     transform=ds_transforms), batch_size=args.batch_size, shuffle=True, **kwargs)
@@ -158,6 +164,7 @@ def sample(model):
 print('starting training')
 writes = 0
 for epoch in range(args.max_epochs):
+    print('Training on epoch {} of {}'.format(epoch, args.max_epochs))
     model.train(True)
     torch.cuda.synchronize()
     train_loss = 0.
