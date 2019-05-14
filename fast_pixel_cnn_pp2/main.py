@@ -37,7 +37,7 @@ parser.add_argument('-l', '--lr', type=float,
                     default=0.0002, help='Base learning rate')
 parser.add_argument('-e', '--lr_decay', type=float, default=0.999995,
                     help='Learning rate decay, applied every step of the optimization')
-parser.add_argument('-b', '--batch_size', type=int, default=64,
+parser.add_argument('-b', '--batch_size', type=int, default=16,
                     help='Batch size during training per GPU')
 parser.add_argument('-x', '--max_epochs', type=int,
                     default=5000, help='How many epochs to run in total?')
@@ -68,8 +68,8 @@ print('Active CUDA Device: GPU', torch.cuda.current_device())
 ###############################################################################################
 
 # GPU
-ngpu=1
-device = torch.device("cuda:1" if (torch.cuda.is_available() and ngpu > 0) else "cpu")
+ngpu = torch.cuda.device_count()
+device = torch.device("cuda:0" if (torch.cuda.is_available() and ngpu > 0) else "cpu")
 print('device: ', device)
 
 ###############################################################################################
@@ -84,7 +84,7 @@ model_name = 'fastpcnn_lr:{:.5f}_nr-resnet{}_nr-filters{}'.format(args.lr, args.
 assert not os.path.exists(os.path.join('runs', model_name)), '{} already exists!'.format(model_name)
 # writer = SummaryWriter(log_dir=os.path.join('runs', model_name)) # for tensorBoardX, ignore for now
 
-sample_batch_size = 25
+sample_batch_size = 12
 if 'mnist' in args.dataset:
     obs = (1, 28, 28)
 elif 'cifar' in args.dataset:
@@ -126,7 +126,7 @@ elif 'imagenet' in args.dataset :
     # Data location
     train_path='/dvmm-filer2/datasets/ImageNet/train'
     val_path='/dvmm-filer2/datasets/ImageNet/val'
-    test_path='/home/vivek/imgcomp/fast_pixel_cnn_pp_new/data/'
+    test_path='/home/vivek/imgcomp/fast_pixel_cnn_pp2/data/'
 
 
     transform = transforms.Compose([
@@ -140,14 +140,14 @@ elif 'imagenet' in args.dataset :
 
     train_loader = torch.utils.data.DataLoader(
         imagenet_train_data,
-        batch_size=30,
+        batch_size=args.batch_size,
         shuffle=True,
         num_workers=0
     )
 
     test_loader = torch.utils.data.DataLoader(
         imagenet_test_data,
-        batch_size=30,
+        batch_size=args.batch_size,
         shuffle=True,
         num_workers=0
     )

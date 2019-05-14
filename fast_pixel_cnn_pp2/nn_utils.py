@@ -9,7 +9,7 @@ import numpy as np
 
 
 ngpu=1
-device = torch.device("cuda:1" if (torch.cuda.is_available() and ngpu > 0) else "cpu")
+device = torch.device("cuda:0" if (torch.cuda.is_available() and ngpu > 0) else "cpu")
 
 def concat_elu(x):
     """ like concatenated ReLU (http://arxiv.org/abs/1603.05201), but then with ELU """
