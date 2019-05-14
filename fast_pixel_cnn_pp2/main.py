@@ -67,8 +67,6 @@ print('Active CUDA Device: GPU', torch.cuda.current_device())
 
 ###############################################################################################
 
-print('got here before imagenet handling')
-
 # GPU
 ngpu=1
 device = torch.device("cuda:1" if (torch.cuda.is_available() and ngpu > 0) else "cpu")
@@ -82,19 +80,26 @@ print('got here before seed')
 torch.manual_seed(args.seed)
 np.random.seed(args.seed)
 
-model_name = 'pcnn_lr:{:.5f}_nr-resnet{}_nr-filters{}'.format(args.lr, args.nr_resnet, args.nr_filters)
+model_name = 'fastpcnn_lr:{:.5f}_nr-resnet{}_nr-filters{}'.format(args.lr, args.nr_resnet, args.nr_filters)
 assert not os.path.exists(os.path.join('runs', model_name)), '{} already exists!'.format(model_name)
-# writer = SummaryWriter(log_dir=os.path.join('runs', model_name))
+# writer = SummaryWriter(log_dir=os.path.join('runs', model_name)) # for tensorBoardX, ignore for now
 
 sample_batch_size = 25
-obs = (1, 28, 28) if 'mnist' in args.dataset else (3, 32, 32)
+if 'mnist' in args.dataset:
+    obs = (1, 28, 28)
+elif 'cifar' in args.dataset:
+    obs = (3, 32, 32)
+elif 'imagenet' in args.dataset:
+    obs = (1, 256, 256)
+else:
+    raise Exception('{} dataset not in {mnist, cifar10, imagenet}'.format(args.dataset))
+
 input_channels = obs[0]
 rescaling     = lambda x : (x - .5) * 2.
 rescaling_inv = lambda x : .5 * x  + .5
 kwargs = {'num_workers':1, 'pin_memory':True, 'drop_last':True}
 ds_transforms = transforms.Compose([transforms.ToTensor(), rescaling])
 
-print('got here 1')
 if 'mnist' in args.dataset : 
     train_loader = torch.utils.data.DataLoader(datasets.MNIST(args.data_dir, download=True, 
                         train=True, transform=ds_transforms), batch_size=args.batch_size, 
@@ -139,12 +144,6 @@ elif 'imagenet' in args.dataset :
         shuffle=True,
         num_workers=0
     )
-    # # old
-    # train_loader = torch.utils.data.DataLoader(
-    #     datasets.ImageNet(args.data_dir, train=True, download=True, transform=ds_transforms), 
-    #     batch_size=args.batch_size, 
-    #     shuffle=True, 
-    #     **kwargs)
 
     test_loader = torch.utils.data.DataLoader(
         imagenet_test_data,
@@ -152,21 +151,27 @@ elif 'imagenet' in args.dataset :
         shuffle=True,
         num_workers=0
     )
-    
-    test_loader  = torch.utils.data.DataLoader(datasets.ImageNet(args.data_dir, train=False, 
-                    transform=ds_transforms), batch_size=args.batch_size, shuffle=True, **kwargs)
+
+    # # old
+    # train_loader = torch.utils.data.DataLoader(
+    #     datasets.ImageNet(args.data_dir, train=True, download=True, transform=ds_transforms), 
+    #     batch_size=args.batch_size, 
+    #     shuffle=True, 
+    #     **kwargs)
+    # test_loader  = torch.utils.data.DataLoader(datasets.ImageNet(args.data_dir, train=False, 
+    #       transform=ds_transforms), batch_size=args.batch_size, shuffle=True, **kwargs)
     
     loss_op   = lambda real, fake : discretized_mix_logistic_loss(real, fake)
     sample_op = lambda x : sample_from_discretized_mix_logistic(x, args.nr_logistic_mix)
 else :
     raise Exception('{} dataset not in {mnist, cifar10, imagenet}'.format(args.dataset))
 
-print('got here before pixelcnn instantation')
+print('PixelCNN Model instantation...')
 model = PixelCNN(nr_resnet=args.nr_resnet, nr_filters=args.nr_filters, 
             input_channels=input_channels, nr_logistic_mix=args.nr_logistic_mix)
 model = model.cuda()
 
-print('got here 2')
+print('checking for checkpoints...')
 if args.load_params:
     load_part_of_model(model, args.load_params)
     # model.load_state_dict(torch.load(args.load_params))
@@ -175,7 +180,6 @@ if args.load_params:
 optimizer = optim.Adam(model.parameters(), lr=args.lr)
 scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=args.lr_decay)
 
-print('got here 3')
 def sample(model):
     model.train(False)
     data = torch.zeros(sample_batch_size, obs[0], obs[1], obs[2], device=device)
@@ -188,12 +192,12 @@ def sample(model):
             data[:, :, i, j] = out_sample.data[:, :, i, j]
     return data
 
-print('starting training')
+print('########################## Begin training: ########################## \n')
 writes = 0
 for epoch in range(args.max_epochs):
     print('Training on epoch {} of {}'.format(epoch, args.max_epochs))
     model.train(True)
-    torch.cuda.synchronize()
+    torch.cuda.synchronize(device=device)
     train_loss = 0.
     time_ = time.time()
     model.train()
