@@ -1,7 +1,7 @@
 import pdb
 
 from layers import * 
-from nn_local import * 
+from nn_utils import * 
 
 import torch
 import torchvision
